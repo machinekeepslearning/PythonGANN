@@ -14,8 +14,8 @@ gray = 128, 128, 128
 green = 0, 255, 0
 orange = 255, 165, 0
 nets = []
-n_nets = 50
-n_rand_nets = 0
+n_nets = 100
+n_rand_nets = 10
 globalfitness = []
 highestfitness = 0
 clock = pygame.time.Clock()
@@ -130,12 +130,12 @@ class NeuralNetwork(Block):
         self.sums_h = None
         self.bias = None
         self.fitness = 0
-        self.dist = math.sqrt((goal.y - self.y) ** 2 + (goal.x - self.x) ** 2)
+        self.dist = math.sqrt((goal_y - self.y) ** 2 + (goal_x - self.x) ** 2)
         self.inputs = np.array([[self.x],
                                 [self.y],
                                 [self.dist],
-                                [goal.x],
-                                [goal.y]])
+                                [goal_x],
+                                [goal_y]])
 
         if self.w_i is None:
             self.init_weights()
@@ -148,12 +148,14 @@ class NeuralNetwork(Block):
         self.w_i = np.random.uniform(-1, 1, (4, 5))
         self.w_h = np.random.uniform(-1, 1, (2, 4))
 
-    def feedforward(self):
+    def updateInputs(self):
+        self.dist = math.sqrt((self.goal_y - self.y) ** 2 + (self.goal_x - self.x) ** 2)
         self.inputs = np.array([[self.x],
                                 [self.y],
                                 [self.dist],
-                                [goal.x],
-                                [goal.y]])
+                                [self.goal_x],
+                                [self.goal_y]])
+    def feedforward(self):
         self.sums_i = np.dot(self.w_i, self.inputs)
         self.hidden = np.tanh(self.sums_i + self.bias)
         self.sums_h = np.dot(self.w_h, self.hidden)
@@ -163,18 +165,18 @@ class NeuralNetwork(Block):
         #if self.idx == 0:
         #    print(self.inputs)
         self.outside_map = self.rect.x > 1000 or self.rect.x < 0 or self.rect.y > 800 or self.rect.x < 0
-        self.dist = math.sqrt((goal.y - self.y) ** 2 + (goal.x - self.x) ** 2)
+        self.updateInputs()
         self.feedforward()
-        self.x = round(self.x + self.output[0][0], 2)
-        self.y = round(self.y + self.output[1][0], 2)
+        self.x = round(self.x + self.output[0][0], 5)
+        self.y = round(self.y + self.output[1][0], 5)
         self.rect.topleft = self.x, self.y
 
         if self.outside_map:
             self.fitness = 999999999 + self.dist*.1 - self.goal_multiplier
-        elif self.rect.colliderect(goal.rect) and not self.outside_map:
+        elif self.rect.colliderect(plr.rect):
             self.goal_multiplier = 10
             self.fitness = self.dist * .1 - 100 - self.goal_multiplier
-        elif not self.outside_map and not self.rect.colliderect(goal.rect):
+        elif not self.outside_map and not self.rect.colliderect(plr.rect):
             self.fitness = self.dist*.1 - self.goal_multiplier
         globalfitness[self.idx] = self.fitness
         testfit = globalfitness.copy()
@@ -186,18 +188,18 @@ class NeuralNetwork(Block):
 
 def updateGame():
     screen.fill(yellow)
-    joe.update()
+    plr.update()
     if not crossing:
         for n in nets:
             screen.blit(n.image, n.rect)
             n.update()
 
     screen.blit(goal.image, goal.rect)
-    screen.blit(joe.image, joe.rect)
+    screen.blit(plr.image, plr.rect)
     pygame.display.flip()
 
 
-joe = Player(black, 10, 10)
+plr = Player(black, 10, 10)
 goal = Goal(green, 10, 10)
 
 for i in range(n_nets + n_rand_nets):
@@ -316,6 +318,17 @@ def crossover(bestNet, secondBestNet):
 
     return f_newW_i, f_newW_h, s_newW_i, s_newW_h
 
+def findNets(fits, firstFit, secondFit):
+    global bestNet, secondNet
+    for net in nets:
+        if net.fitness == fits[firstFit]:
+            # print("Best Net Found!")
+            bestNet = net
+        if net.fitness == fits[secondFit]:
+            # print("Second Best Net Found!")
+            secondNet = net
+    return bestNet, secondNet
+
 while True:
     clock.tick(120 * speed_modifier)
     for event in pygame.event.get():
@@ -325,14 +338,22 @@ while True:
     ticks = pygame.time.get_ticks()
     seconds = round(ticks/1000, 2)
 
-    if timer * 0.998 <= seconds % timer <= timer * 1.002 and seconds != 0 and crossing == False:
+    if timer * 0.988 <= seconds % timer <= timer * 1.012 and seconds != 0 and crossing == False:
+        goal.rect.x = random.randint(100, 900)
+        goal.rect.y = random.randint(100, 700)
+        #pygame.time.wait(100)
         generation += 1
         print(f"Generation: {generation}")
         crossing = True
-        bestNet = None
-        secondBestNet = None
         sortedFit = globalfitness.copy()
         sortedFit.sort()
+
+        arr_of_newW_i = []
+        arr_of_newW_h = []
+        arr_of_s_newW_i = []
+        arr_of_s_newW_h = []
+
+        '''
         FirstFit = sortedFit[0]
         SecondFit = sortedFit[1]
 
@@ -344,6 +365,7 @@ while True:
             if net.fitness == SecondFit:
                 #print("Second Best Net Found!")
                 secondBestNet = net
+        
         if bestNet is None:
             print('Cant find best net')
             print(globalfitness)
@@ -354,24 +376,27 @@ while True:
             print(globalfitness)
             for net in nets:
                 print(net.fitness == FirstFit)
-
+        '''
 
         #pygame.time.wait(1000)
         print("Crossover will now happen!")
         testfit = globalfitness.copy()
         testfit.sort()
         print("Best Fitness of last gen: " + str(testfit[0]))
-        arr_of_newW_i = []
-        arr_of_newW_h = []
-        arr_of_s_newW_i = []
-        arr_of_s_newW_h = []
-        for i in range(n_nets):
-            f_new_i, f_new_h, s_new_i, s_new_h  = crossover(bestNet, secondBestNet)
+        for i in range(int(n_nets/2)):
+            if i < 14:
+                bestNet, secondNet = findNets(testfit, 0, random.randint(0, n_nets - 1))
+            if i < 21:
+                bestNet, secondNet = findNets(testfit, 1, random.randint(0, n_nets - 1))
+            else:
+                bestNet, secondNet = findNets(testfit, 2, random.randint(0, n_nets - 1))
+            f_new_i, f_new_h, s_new_i, s_new_h  = crossover(bestNet, secondNet)
 
             arr_of_newW_i.append(f_new_i)
             arr_of_newW_h.append(f_new_h)
             arr_of_s_newW_i.append(s_new_i)
             arr_of_s_newW_h.append(s_new_h)
+        print(len(arr_of_newW_i))
         for _ in range(n_nets + n_rand_nets):
             del nets[0]
         #print(nets)
@@ -381,6 +406,7 @@ while True:
             nets.append(NeuralNetwork(arr_of_s_newW_i[i], arr_of_s_newW_h[i], i+n_nets/2, goal.rect.x, goal.rect.y, orange))
         for i in range(n_rand_nets):
             nets.append(NeuralNetwork(None, None, n_nets + i, goal.rect.x, goal.rect.y, red))
+        print(len(nets))
         pygame.time.wait(100)
         #print("before purge: " + str(nets))
         #print("after purge: " + str(nets))
