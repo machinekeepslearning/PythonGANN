@@ -173,10 +173,10 @@ class NeuralNetwork(Block):
 
         if self.outside_map:
             self.fitness = 999999999 + self.dist*.1 - self.goal_multiplier
-        elif self.rect.colliderect(plr.rect):
+        elif self.rect.colliderect(goal.rect):
             self.goal_multiplier = 10
             self.fitness = self.dist * .1 - 100 - self.goal_multiplier
-        elif not self.outside_map and not self.rect.colliderect(plr.rect):
+        elif not self.outside_map and not self.rect.colliderect(goal.rect):
             self.fitness = self.dist*.1 - self.goal_multiplier
         globalfitness[self.idx] = self.fitness
         testfit = globalfitness.copy()
