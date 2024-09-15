@@ -13,9 +13,9 @@ The input nodes consist of data relating to distance between the bot and the goa
 The output nodes consist of actions: moving horizontally and moving vertically.
 When the output node is positive, the bot moves in the positive direction (right/up) and negative direction when negative (left/down).
 
-Fitness is measured by how close the bot is to the goal and whether or not is has touched borders
+Fitness is measured by how close the bot is to the goal and whether or not is has passed borders of my screen
 Higher fitness is indicated by a lower fitness score due to lower distance to goal being a favored trait (in retrospect this could've been done better)
-If the bot touches the borders, then it will have 999999999 added to its fitness to deincentivize going off the map
+If the bot passed the borders of my screen, then it will have 999999999 added to its fitness to deincentivize going off the map
 the fitness is proportional the distance of the bot from the goal subtracted by a goal multiplier which is >10 when the bot is touching the goal
 
 After a set amount of time, the population will crossover their genes and create a new population
