@@ -338,7 +338,7 @@ while True:
     ticks = pygame.time.get_ticks()
     seconds = round(ticks/1000, 2)
 
-    if timer * 0.988 <= seconds % timer <= timer * 1.012 and seconds != 0 and crossing == False:
+    if 0 <= seconds % timer <= 0.059 and seconds != 0 and crossing == False:
         goal.rect.x = random.randint(100, 900)
         goal.rect.y = random.randint(100, 700)
         #pygame.time.wait(100)
