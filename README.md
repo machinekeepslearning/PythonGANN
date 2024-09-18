@@ -61,6 +61,3 @@ There are borders at the edge of the window which will "kill" the Neural Network
 
 The Goal:
 The goal of this simulation is to train Neural Networks to avoid death using sensor-like inputs which demonstrates the complexity of the behavior that AI is capable of. This was also just a cool project and incredibly fun to watch (for me at least)
-
-Whats crazy about this project:
-Imagine you can't see anything except where you are in a seemingly empty grid and all you have is 4 arms that extend from your front and back and from your left and right shoulder that can feel something pleasurable to touch (increased fitness for touching red square), however, if it comes in contact with your body, you die pretty painfully. For every second you are alive, you feel good. This is somewhat what's going on except fitness doesn't exactly correlate to good and bad feelings as this is not a single model that learns based on rewards but it is similar enough.
