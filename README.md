@@ -37,3 +37,22 @@ Using this method of generation creation produces much greater genetic diversity
 All of the bots spawn in a random position within a 20x20 box on the map. The position of the goal is randomized each time a generation is created to prevent similar outputs in the beginning.
 
 Goal position is randomized each time so that bots are trained to reach the goal rather than move in the same direction.
+
+---------------------------------------------------------------------------------------------------------------------------
+
+AvoidRed.py
+
+Neural Network Architecture: 6 (input), 4 (tanh hidden), 2 (tanh output)
+
+Inputs: whether or not each of the 4 pole rectangles are touching a red rectangle (each node has a value of 10 if touching and -10 if not touching), x and y coordinates of itself
+Outputs: Left/Right, Up/Down 
+  - If the first node is >0, it is moving up. down if <0
+  - If the second node is >0, it is moving right. left if <0
+
+Fitness:
+Fitness is a measure of how well an entity is doing in its given environment
+In this case, fitness increases when the Neural Network is alive and somewhat similar to the first project gets 99999 subtracted from its fitness when it dies to incentivize living. Fitness also increases when a pole is touching a red square to deincentivize the network from standing still and doing nothing.
+
+Crossing Over:
+Each NN has 2 sets of weights that are represented as matrices for easy feedforwarding. When crossover occurs, each matrix is flattened into a vector and 2 Neural Networks are chosen to be crossed. The first NN is randomly selected from the top 3 best performing NNs and the second NN is randomly chosen. This method encourages genetic diversity while ensuring that well performing genes are passed down. Bias vectors are crossed the same way weights are.
+
