@@ -107,7 +107,7 @@ def crossover():
         weight_mat = []
         bias_mat = []
 
-        best_idx, next_best_idx = findNets(random.randint(0, 2), random.randint(3, pop-1))
+        best_idx, next_best_idx = findNets(random.randint(0, 2), random.randint(0, 5))
 
         #best_idx, next_best_idx = findNets(0, 1)
 
@@ -214,7 +214,7 @@ class NeuralNetwork:
             if self.poles[i].collidelist(obstacles) != -1 or self.poles[i].collidelist(borders) != -1:
                 pygame.draw.rect(screen, "red", self.poles[i])
                 self.inputs[i][0] = 100
-                self.fitness += 0.05
+                self.fitness -= 0.05
                 fitness_list[self.id] = self.fitness
             else:
                 self.inputs[i][0] = -100
